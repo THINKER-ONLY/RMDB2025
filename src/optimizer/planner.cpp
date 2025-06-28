@@ -23,15 +23,26 @@ See the Mulan PSL v2 for more details. */
 #include "record_printer.h"
 
 // 目前的索引匹配规则为：完全匹配索引字段，且全部为单点查询，不会自动调整where条件的顺序
-bool Planner::get_index_cols(std::string tab_name, std::vector<Condition> curr_conds, std::vector<std::string>& index_col_names) {
+bool Planner::get_index_cols(std::string tab_name, std::vector<Condition>& curr_conds, std::vector<std::string>& index_col_names) {
     index_col_names.clear();
-    for(auto& cond: curr_conds) {
-        if(cond.is_rhs_val && cond.op == OP_EQ && cond.lhs_col.tab_name.compare(tab_name) == 0)
-            index_col_names.push_back(cond.lhs_col.col_name);
-    }
     TabMeta& tab = sm_manager_->db_.get_table(tab_name);
-    if(tab.is_index(index_col_names)) return true;
-    return false;
+    std::vector<Condition> equal_conds;
+    std::vector<Condition> other_conds;
+    for(auto& cond: curr_conds) {
+        if(cond.is_rhs_val && cond.lhs_col.tab_name.compare(tab_name) == 0)
+        {
+            // index_col_names.push_back(cond.lhs_col.col_name);
+            equal_conds.push_back(cond);
+        }
+        else
+            other_conds.push_back(cond);
+    }
+    bool res = tab.modify_and_check_index(equal_conds, index_col_names);
+    // curr_conds.swap(equal_conds);
+    // curr_conds.insert(curr_conds.end(), other_conds.begin(), other_conds.end());
+    return res;
+    // if(tab.is_index(index_col_names)) return true;
+    // return false;
 }
 
 /**
@@ -48,7 +59,7 @@ std::vector<Condition> pop_conds(std::vector<Condition> &conds, std::string tab_
     std::vector<Condition> solved_conds;
     auto it = conds.begin();
     while (it != conds.end()) {
-        if ((tab_names.compare(it->lhs_col.tab_name) == 0 && it->is_rhs_val) || (it->lhs_col.tab_name.compare(it->rhs_col.tab_name) == 0)) {
+        if ((tab_names.compare(it->lhs_col.tab_name) == 0 && !(it->rhs_type == CondRhsType::RHS_COL)) || (it->lhs_col.tab_name.compare(it->rhs_col.tab_name) == 0)) {
             solved_conds.emplace_back(std::move(*it));
             it = conds.erase(it);
         } else {
@@ -130,7 +141,7 @@ std::shared_ptr<Plan> Planner::physical_optimization(std::shared_ptr<Query> quer
     std::shared_ptr<Plan> plan = make_one_rel(query);
     
     // 其他物理优化
-
+    plan = generate_aggregation_group_plan(query, std::move(plan));
     // 处理orderby
     plan = generate_sort_plan(query, std::move(plan)); 
 
@@ -164,8 +175,11 @@ std::shared_ptr<Plan> Planner::make_one_rel(std::shared_ptr<Query> query)
     {
         return table_scan_executors[0];
     }
+    // 获取on条件
+    auto on_conds = std::move(query->on_conds);
     // 获取where条件
     auto conds = std::move(query->conds);
+    conds.insert(conds.end(), on_conds.begin(), on_conds.end());
     std::shared_ptr<Plan> table_join_executors;
     
     int scantbl[tables.size()];
@@ -284,7 +298,14 @@ std::shared_ptr<Plan> Planner::generate_sort_plan(std::shared_ptr<Query> query, 
                                     x->order->orderby_dir == ast::OrderBy_DESC);
 }
 
-
+std::shared_ptr<Plan> Planner::generate_aggregation_group_plan(std::shared_ptr<Query> query, std::shared_ptr<Plan> plan)
+{
+    auto x = std::dynamic_pointer_cast<ast::SelectStmt>(query->parse);
+    if(!query->has_aggr && query->group_cols.empty()) {
+        return plan;
+    }
+    return std::make_shared<AggregationPlan>(T_Aggregation, std::move(plan), query->cols, query->group_cols, query->having_conds);
+}
 /**
  * @brief select plan 生成
  *
@@ -355,7 +376,7 @@ std::shared_ptr<Plan> Planner::do_planner(std::shared_ptr<Query> query, Context 
         }
 
         plannerRoot = std::make_shared<DMLPlan>(T_Delete, table_scan_executors, x->tab_name,  
-                                                std::vector<Value>(), query->conds, std::vector<SetClause>());
+                                                std::vector<std::vector<Value>>(), query->conds, std::vector<SetClause>());
     } else if (auto x = std::dynamic_pointer_cast<ast::UpdateStmt>(query->parse)) {
         // update;
         // 生成表扫描方式
@@ -374,14 +395,14 @@ std::shared_ptr<Plan> Planner::do_planner(std::shared_ptr<Query> query, Context 
                 std::make_shared<ScanPlan>(T_IndexScan, sm_manager_, x->tab_name, query->conds, index_col_names);
         }
         plannerRoot = std::make_shared<DMLPlan>(T_Update, table_scan_executors, x->tab_name,
-                                                     std::vector<Value>(), query->conds, 
+                                                     std::vector<std::vector<Value>>(), query->conds, 
                                                      query->set_clauses);
     } else if (auto x = std::dynamic_pointer_cast<ast::SelectStmt>(query->parse)) {
 
         std::shared_ptr<plannerInfo> root = std::make_shared<plannerInfo>(x);
         // 生成select语句的查询执行计划
         std::shared_ptr<Plan> projection = generate_select_plan(std::move(query), context);
-        plannerRoot = std::make_shared<DMLPlan>(T_select, projection, std::string(), std::vector<Value>(),
+        plannerRoot = std::make_shared<DMLPlan>(T_select, projection, std::string(), std::vector<std::vector<Value>>(),
                                                     std::vector<Condition>(), std::vector<SetClause>());
     } else {
         throw InternalError("Unexpected AST root");
