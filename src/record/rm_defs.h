@@ -59,18 +59,8 @@ struct RmRecord {
         allocated_ = true;
     };
 
-
-    RmRecord &operator=(const RmRecord& other) {
-        size = other.size;
+    RmRecord(int size) : size(size) {
         data = new char[size];
-        memcpy(data, other.data, size);
-        allocated_ = true;
-        return *this;
-    };
-
-    RmRecord(int size_) {
-        size = size_;
-        data = new char[size_];
         allocated_ = true;
     }
 
@@ -81,8 +71,57 @@ struct RmRecord {
         allocated_ = true;
     }
 
+    ~RmRecord() {
+        if (allocated_) {
+            delete[] data;
+        }
+    }
+
+    RmRecord &operator=(const RmRecord &other) {
+        if (this == &other) {
+            return *this;
+        }
+        if (allocated_) {
+            delete[] data;
+        }
+        size = other.size;
+        data = new char[size];
+        memcpy(data, other.data, size);
+        allocated_ = true;
+        return *this;
+    }
+
+    RmRecord(RmRecord &&other) noexcept {
+        data = other.data;
+        size = other.size;
+        allocated_ = other.allocated_;
+
+        other.data = nullptr;
+        other.size = 0;
+        other.allocated_ = false;
+    }
+
+    RmRecord &operator=(RmRecord &&other) noexcept {
+        if (this == &other) {
+            return *this;
+        }
+        if (allocated_) {
+            delete[] data;
+        }
+        
+        data = other.data;
+        size = other.size;
+        allocated_ = other.allocated_;
+
+        other.data = nullptr;
+        other.size = 0;
+        other.allocated_ = false;
+        
+        return *this;
+    }
+
     void SetData(char* data_) {
-        memcpy(data, data_, size);
+        data = data_;
     }
 
     void Deserialize(const char* data_) {
@@ -92,13 +131,5 @@ struct RmRecord {
         }
         data = new char[size];
         memcpy(data, data_ + sizeof(int), size);
-    }
-
-    ~RmRecord() {
-        if(allocated_) {
-            delete[] data;
-        }
-        allocated_ = false;
-        data = nullptr;
     }
 };

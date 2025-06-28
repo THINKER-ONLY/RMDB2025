@@ -18,6 +18,8 @@ See the Mulan PSL v2 for more details. */
 
 #include "errors.h"
 #include "sm_defs.h"
+#include "parser/ast.h"
+#include "common/common.h"
 
 /* 字段元数据 */
 struct ColMeta {
@@ -27,15 +29,39 @@ struct ColMeta {
     int len;                // 字段长度
     int offset;             // 字段位于记录中的偏移量
     bool index;             /** unused */
+    ast::AggregationType aggr = ast::NO_AGGR;
+    std::string alias;
+
+    Value to_value(const char *base) const {
+        Value value;
+        switch (type) {
+            case TYPE_INT:
+                value.set_int(*(int *) (base + offset));
+                break;
+            case TYPE_FLOAT:
+                value.set_float(*(float *) (base + offset));
+                break;
+            case TYPE_STRING: {
+                std::string str(base + offset, len);
+                // trim trailing zeros
+                str.resize(std::min(str.find('\0'), (size_t)len));
+                value.set_str(str);
+                break;
+            }
+            default:
+                throw InternalError("not implemented for this type");
+        }
+        return value;
+    }
 
     friend std::ostream &operator<<(std::ostream &os, const ColMeta &col) {
         // ColMeta中有各个基本类型的变量，然后调用重载的这些变量的操作符<<（具体实现逻辑在defs.h）
         return os << col.tab_name << ' ' << col.name << ' ' << col.type << ' ' << col.len << ' ' << col.offset << ' '
-                  << col.index;
+                  << col.index << ' ' << col.aggr << ' ' << col.alias;
     }
 
     friend std::istream &operator>>(std::istream &is, ColMeta &col) {
-        return is >> col.tab_name >> col.name >> col.type >> col.len >> col.offset >> col.index;
+        return is >> col.tab_name >> col.name >> col.type >> col.len >> col.offset >> col.index >> col.aggr >> col.alias;
     }
 };
 

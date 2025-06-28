@@ -64,11 +64,11 @@ class InsertExecutor : public AbstractExecutor {
             log_record.prev_lsn_ = context_->txn_->get_prev_lsn();
             lsn_t curr_lsn = context_->log_mgr_->add_log_to_buffer(&log_record);
             context_->txn_->set_prev_lsn(curr_lsn);
+            auto wr = std::make_unique<WriteRecord>(WType::INSERT_TUPLE, tab_name_, rid_);
+            context_->txn_->append_write_record(std::move(wr));
             // 加锁
             context_->lock_mgr_->lock_exclusive_on_table(context_->txn_, fh_->GetFd());
             fh_->insert_record(rid_, rec.data);
-            WriteRecord* wr = new WriteRecord(WType::INSERT_TUPLE, tab_name_, rid_);
-            context_->txn_->append_write_record(wr);
             // Insert into index
             for(size_t i = 0; i < tab_.indexes.size(); ++i) {
                 auto& index = tab_.indexes[i];
