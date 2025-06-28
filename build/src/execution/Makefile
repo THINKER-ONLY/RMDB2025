@@ -185,6 +185,30 @@ execution/fast:
 	cd /home/thinker/Projects/rmdb2025/rmdb/build && $(MAKE) $(MAKESILENT) -f src/execution/CMakeFiles/execution.dir/build.make src/execution/CMakeFiles/execution.dir/build
 .PHONY : execution/fast
 
+condition_check.o: condition_check.cpp.o
+.PHONY : condition_check.o
+
+# target to build an object file
+condition_check.cpp.o:
+	cd /home/thinker/Projects/rmdb2025/rmdb/build && $(MAKE) $(MAKESILENT) -f src/execution/CMakeFiles/execution.dir/build.make src/execution/CMakeFiles/execution.dir/condition_check.cpp.o
+.PHONY : condition_check.cpp.o
+
+condition_check.i: condition_check.cpp.i
+.PHONY : condition_check.i
+
+# target to preprocess a source file
+condition_check.cpp.i:
+	cd /home/thinker/Projects/rmdb2025/rmdb/build && $(MAKE) $(MAKESILENT) -f src/execution/CMakeFiles/execution.dir/build.make src/execution/CMakeFiles/execution.dir/condition_check.cpp.i
+.PHONY : condition_check.cpp.i
+
+condition_check.s: condition_check.cpp.s
+.PHONY : condition_check.s
+
+# target to generate assembly for a file
+condition_check.cpp.s:
+	cd /home/thinker/Projects/rmdb2025/rmdb/build && $(MAKE) $(MAKESILENT) -f src/execution/CMakeFiles/execution.dir/build.make src/execution/CMakeFiles/execution.dir/condition_check.cpp.s
+.PHONY : condition_check.cpp.s
+
 execution_manager.o: execution_manager.cpp.o
 .PHONY : execution_manager.o
 
@@ -223,6 +247,9 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... test"
 	@echo "... execution"
+	@echo "... condition_check.o"
+	@echo "... condition_check.i"
+	@echo "... condition_check.s"
 	@echo "... execution_manager.o"
 	@echo "... execution_manager.i"
 	@echo "... execution_manager.s"

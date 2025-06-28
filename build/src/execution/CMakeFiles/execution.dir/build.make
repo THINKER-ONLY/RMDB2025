@@ -83,17 +83,33 @@ src/execution/CMakeFiles/execution.dir/execution_manager.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/execution.dir/execution_manager.cpp.s"
 	cd /home/thinker/Projects/rmdb2025/rmdb/build/src/execution && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/thinker/Projects/rmdb2025/rmdb/src/execution/execution_manager.cpp -o CMakeFiles/execution.dir/execution_manager.cpp.s
 
+src/execution/CMakeFiles/execution.dir/condition_check.cpp.o: src/execution/CMakeFiles/execution.dir/flags.make
+src/execution/CMakeFiles/execution.dir/condition_check.cpp.o: ../src/execution/condition_check.cpp
+src/execution/CMakeFiles/execution.dir/condition_check.cpp.o: src/execution/CMakeFiles/execution.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/thinker/Projects/rmdb2025/rmdb/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object src/execution/CMakeFiles/execution.dir/condition_check.cpp.o"
+	cd /home/thinker/Projects/rmdb2025/rmdb/build/src/execution && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/execution/CMakeFiles/execution.dir/condition_check.cpp.o -MF CMakeFiles/execution.dir/condition_check.cpp.o.d -o CMakeFiles/execution.dir/condition_check.cpp.o -c /home/thinker/Projects/rmdb2025/rmdb/src/execution/condition_check.cpp
+
+src/execution/CMakeFiles/execution.dir/condition_check.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/execution.dir/condition_check.cpp.i"
+	cd /home/thinker/Projects/rmdb2025/rmdb/build/src/execution && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/thinker/Projects/rmdb2025/rmdb/src/execution/condition_check.cpp > CMakeFiles/execution.dir/condition_check.cpp.i
+
+src/execution/CMakeFiles/execution.dir/condition_check.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/execution.dir/condition_check.cpp.s"
+	cd /home/thinker/Projects/rmdb2025/rmdb/build/src/execution && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/thinker/Projects/rmdb2025/rmdb/src/execution/condition_check.cpp -o CMakeFiles/execution.dir/condition_check.cpp.s
+
 # Object files for target execution
 execution_OBJECTS = \
-"CMakeFiles/execution.dir/execution_manager.cpp.o"
+"CMakeFiles/execution.dir/execution_manager.cpp.o" \
+"CMakeFiles/execution.dir/condition_check.cpp.o"
 
 # External object files for target execution
 execution_EXTERNAL_OBJECTS =
 
 lib/libexecution.a: src/execution/CMakeFiles/execution.dir/execution_manager.cpp.o
+lib/libexecution.a: src/execution/CMakeFiles/execution.dir/condition_check.cpp.o
 lib/libexecution.a: src/execution/CMakeFiles/execution.dir/build.make
 lib/libexecution.a: src/execution/CMakeFiles/execution.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/thinker/Projects/rmdb2025/rmdb/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX static library ../../lib/libexecution.a"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/thinker/Projects/rmdb2025/rmdb/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Linking CXX static library ../../lib/libexecution.a"
 	cd /home/thinker/Projects/rmdb2025/rmdb/build/src/execution && $(CMAKE_COMMAND) -P CMakeFiles/execution.dir/cmake_clean_target.cmake
 	cd /home/thinker/Projects/rmdb2025/rmdb/build/src/execution && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/execution.dir/link.txt --verbose=$(VERBOSE)
 
