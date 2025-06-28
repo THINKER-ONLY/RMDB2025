@@ -92,7 +92,8 @@ class IxManager {
         fhdr->serialize(data);
 
         disk_manager_->write_page(fd, IX_FILE_HDR_PAGE, data, fhdr->tot_len_);
-
+        delete data;
+        delete fhdr;
         char page_buf[PAGE_SIZE];  // 在内存中初始化page_buf中的内容，然后将其写入磁盘
         memset(page_buf, 0, PAGE_SIZE);
         // 注意leaf header页号为1，也标记为叶子结点，其前一个/后一个叶子均指向root node
@@ -163,5 +164,6 @@ class IxManager {
         // 缓冲区的所有页刷到磁盘，注意这句话必须写在close_file前面
         buffer_pool_manager_->flush_all_pages(ih->fd_);
         disk_manager_->close_file(ih->fd_);
+        delete data;
     }
 };
