@@ -58,8 +58,19 @@ private:
                 {SV_OP_GT, ">"},
                 {SV_OP_LE, "<="},
                 {SV_OP_GE, ">="},
+                {SV_OP_IN, "IN"}
         };
         return m.at(op);
+    }
+
+    template<typename T>
+    static void print_node_list_list(std::vector<T> nodes, int offset) {
+        std::cout << offset2string(offset);
+        offset += 2;
+        std::cout << "LIST\n";
+        for (auto &node : nodes) {
+            print_node_list(node, offset);
+        }
     }
 
     template<typename T>
@@ -101,6 +112,13 @@ private:
             // print_val(x->col_name, offset);
             for(auto col_name: x->col_names)
                 print_val(col_name, offset);
+        } else if (auto x = std::dynamic_pointer_cast<ShowIndex>(node)) {
+            std::cout << "SHOW_INDEX\n";
+            print_val(x->tab_name, offset);
+        } else if (auto x = std::dynamic_pointer_cast<CreateStaticCheckpoint>(node)) {
+            std::cout << "CREATE_STATIC_CHECKPOINT\n";
+        } else if (auto x = std::dynamic_pointer_cast<LoadStmt>(node)) {
+            std::cout << "load " << x->file_name << " into " << x->tab_name <<"\n";
         } else if (auto x = std::dynamic_pointer_cast<ColDef>(node)) {
             std::cout << "COL_DEF\n";
             print_val(x->col_name, offset);
@@ -134,7 +152,7 @@ private:
         } else if (auto x = std::dynamic_pointer_cast<InsertStmt>(node)) {
             std::cout << "INSERT\n";
             print_val(x->tab_name, offset);
-            print_node_list(x->vals, offset);
+            print_node_list_list(x->vals, offset);
         } else if (auto x = std::dynamic_pointer_cast<DeleteStmt>(node)) {
             std::cout << "DELETE\n";
             print_val(x->tab_name, offset);

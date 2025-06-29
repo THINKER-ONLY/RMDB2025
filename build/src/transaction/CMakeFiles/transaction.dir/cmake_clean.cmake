@@ -5,8 +5,6 @@ file(REMOVE_RECURSE
   "CMakeFiles/transaction.dir/concurrency/lock_manager.cpp.o.d"
   "CMakeFiles/transaction.dir/transaction_manager.cpp.o"
   "CMakeFiles/transaction.dir/transaction_manager.cpp.o.d"
-  "CMakeFiles/transaction.dir/watermark.cpp.o"
-  "CMakeFiles/transaction.dir/watermark.cpp.o.d"
 )
 
 # Per-language clean rules from dependency scanning.

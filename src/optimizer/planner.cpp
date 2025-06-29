@@ -141,9 +141,13 @@ std::shared_ptr<Plan> Planner::physical_optimization(std::shared_ptr<Query> quer
     std::shared_ptr<Plan> plan = make_one_rel(query);
     
     // 其他物理优化
+
+    // 处理 aggregation 和 groupby
     plan = generate_aggregation_group_plan(query, std::move(plan));
+
     // 处理orderby
-    plan = generate_sort_plan(query, std::move(plan)); 
+    plan = generate_sort_plan(query, std::move(plan));
+
 
     return plan;
 }
@@ -306,6 +310,7 @@ std::shared_ptr<Plan> Planner::generate_aggregation_group_plan(std::shared_ptr<Q
     }
     return std::make_shared<AggregationPlan>(T_Aggregation, std::move(plan), query->cols, query->group_cols, query->having_conds);
 }
+
 /**
  * @brief select plan 生成
  *

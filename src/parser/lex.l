@@ -39,6 +39,7 @@ identifier {alpha}(_|{alpha}|{digit})*
 value_int {sign}?{digit}+
 value_float {sign}?{digit}+\.({digit}+)?
 value_string '[^']*'
+path_like [^ ]*\.csv
 single_op ";"|"("|")"|","|"*"|"="|">"|"<"|"."
 
 %x STATE_COMMENT
@@ -74,6 +75,10 @@ single_op ";"|"("|")"|","|"*"|"="|">"|"<"|"."
 "UPDATE" { return UPDATE; }
 "SET" { return SET; }
 "SELECT" { return SELECT; }
+"MAX" { return MAX; }
+"MIN" { return MIN; }
+"SUM" { return SUM; }
+"COUNT" { return COUNT; }
 "INT" { return INT; }
 "CHAR" { return CHAR; }
 "FLOAT" { return FLOAT; }
@@ -83,10 +88,18 @@ single_op ";"|"("|")"|","|"*"|"="|">"|"<"|"."
 "EXIT" { return EXIT; }
 "HELP" { return HELP; }
 "ORDER" { return ORDER; }
+"GROUP" {return GROUP; }
 "BY" {  return BY;  }
+"HAVING" { return HAVING; }
 "ASC" { return ASC; }
+"ON" { return ON; }
+"AS" {return AS; }
+"IN" {return IN; }
 "ENABLE_NESTLOOP" { return ENABLE_NESTLOOP; }
 "ENABLE_SORTMERGE" { return ENABLE_SORTMERGE; }
+"STATIC_CHECKPOINT" { return STATIC_CHECKPOINT; }
+"OUTPUT_FILE" { return OUTPUT_FILE; }
+"OFF" { return OFF; }
 "TRUE" { 
     yylval->sv_bool = true;
     return VALUE_BOOL; 
@@ -95,10 +108,16 @@ single_op ";"|"("|")"|","|"*"|"="|">"|"<"|"."
     yylval->sv_bool = false;
     return VALUE_BOOL;
 }
+"LOAD" { return LOAD; }
     /* operators */
 ">=" { return GEQ; }
 "<=" { return LEQ; }
 "<>" { return NEQ; }
+"!=" { return NEQ; }
+{path_like} {
+    yylval->sv_str = std::string(yytext);
+    return PATH_LIKE;
+}
 {single_op} { return yytext[0]; }
     /* id */
 {identifier} {

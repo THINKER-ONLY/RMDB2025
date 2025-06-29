@@ -23,6 +23,14 @@ See the Mulan PSL v2 for more details. */
 #include "common/config.h"
 #include "errors.h"  
 
+/*
+磁盘管理器
+
+在本任务中，参赛队伍需要实现磁盘管理器DiskManager的相关接口，磁盘管理器负责文件操作、读写页面等。
+在完成本任务之前，参赛队伍需要阅读项目结构文档中磁盘管理器的相关说明，以及代码框架中src/errors.h、
+src/storage/disk_manager.h、src/storage/disk_manager.cpp、src/common/config.h文件。
+*/
+
 /**
  * @description: DiskManager的作用主要是根据上层的需要对磁盘文件进行操作
  */
@@ -73,6 +81,12 @@ class DiskManager {
 
     int GetLogFd() { return log_fd_; }
 
+    void set_restart_log(int offset);
+
+    int get_restart_log();
+
+    int get_log_size();
+
     /**
      * @description: 设置文件已经分配的页面个数
      * @param {int} fd 文件对应的文件句柄
@@ -95,5 +109,6 @@ class DiskManager {
     std::unordered_map<int, std::string> fd2path_;  //<Page fd,Page文件磁盘路径>哈希表
 
     int log_fd_ = -1;                             // WAL日志文件的文件句柄，默认为-1，代表未打开日志文件
+    int restart_fd_ = -1;
     std::atomic<page_id_t> fd2pageno_[MAX_FD]{};  // 文件中已经分配的页面个数，初始值为0
 };

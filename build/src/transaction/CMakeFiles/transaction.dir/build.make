@@ -97,35 +97,19 @@ src/transaction/CMakeFiles/transaction.dir/transaction_manager.cpp.s: cmake_forc
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/transaction.dir/transaction_manager.cpp.s"
 	cd /home/thinker/Projects/rmdb2025/rmdb/build/src/transaction && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/thinker/Projects/rmdb2025/rmdb/src/transaction/transaction_manager.cpp -o CMakeFiles/transaction.dir/transaction_manager.cpp.s
 
-src/transaction/CMakeFiles/transaction.dir/watermark.cpp.o: src/transaction/CMakeFiles/transaction.dir/flags.make
-src/transaction/CMakeFiles/transaction.dir/watermark.cpp.o: ../src/transaction/watermark.cpp
-src/transaction/CMakeFiles/transaction.dir/watermark.cpp.o: src/transaction/CMakeFiles/transaction.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/thinker/Projects/rmdb2025/rmdb/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object src/transaction/CMakeFiles/transaction.dir/watermark.cpp.o"
-	cd /home/thinker/Projects/rmdb2025/rmdb/build/src/transaction && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/transaction/CMakeFiles/transaction.dir/watermark.cpp.o -MF CMakeFiles/transaction.dir/watermark.cpp.o.d -o CMakeFiles/transaction.dir/watermark.cpp.o -c /home/thinker/Projects/rmdb2025/rmdb/src/transaction/watermark.cpp
-
-src/transaction/CMakeFiles/transaction.dir/watermark.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/transaction.dir/watermark.cpp.i"
-	cd /home/thinker/Projects/rmdb2025/rmdb/build/src/transaction && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/thinker/Projects/rmdb2025/rmdb/src/transaction/watermark.cpp > CMakeFiles/transaction.dir/watermark.cpp.i
-
-src/transaction/CMakeFiles/transaction.dir/watermark.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/transaction.dir/watermark.cpp.s"
-	cd /home/thinker/Projects/rmdb2025/rmdb/build/src/transaction && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/thinker/Projects/rmdb2025/rmdb/src/transaction/watermark.cpp -o CMakeFiles/transaction.dir/watermark.cpp.s
-
 # Object files for target transaction
 transaction_OBJECTS = \
 "CMakeFiles/transaction.dir/concurrency/lock_manager.cpp.o" \
-"CMakeFiles/transaction.dir/transaction_manager.cpp.o" \
-"CMakeFiles/transaction.dir/watermark.cpp.o"
+"CMakeFiles/transaction.dir/transaction_manager.cpp.o"
 
 # External object files for target transaction
 transaction_EXTERNAL_OBJECTS =
 
 lib/libtransaction.a: src/transaction/CMakeFiles/transaction.dir/concurrency/lock_manager.cpp.o
 lib/libtransaction.a: src/transaction/CMakeFiles/transaction.dir/transaction_manager.cpp.o
-lib/libtransaction.a: src/transaction/CMakeFiles/transaction.dir/watermark.cpp.o
 lib/libtransaction.a: src/transaction/CMakeFiles/transaction.dir/build.make
 lib/libtransaction.a: src/transaction/CMakeFiles/transaction.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/thinker/Projects/rmdb2025/rmdb/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Linking CXX static library ../../lib/libtransaction.a"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/thinker/Projects/rmdb2025/rmdb/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Linking CXX static library ../../lib/libtransaction.a"
 	cd /home/thinker/Projects/rmdb2025/rmdb/build/src/transaction && $(CMAKE_COMMAND) -P CMakeFiles/transaction.dir/cmake_clean_target.cmake
 	cd /home/thinker/Projects/rmdb2025/rmdb/build/src/transaction && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/transaction.dir/link.txt --verbose=$(VERBOSE)
 

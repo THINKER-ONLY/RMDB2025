@@ -110,8 +110,8 @@ class UpdateExecutor : public AbstractExecutor {
             lsn_t curr_lsn = context_->log_mgr_->add_log_to_buffer(&log_record);
             context_->txn_->set_prev_lsn(curr_lsn);
             fh_->update_record(rid, rec_new->data, context_);
-            context_->txn_->append_write_record(
-                std::make_unique<WriteRecord>(WType::UPDATE_TUPLE, tab_name_, rid, *rec));
+            WriteRecord* wr = new WriteRecord(WType::UPDATE_TUPLE, tab_name_, rid, *rec);
+            context_->txn_->append_write_record(wr);
             // 更新索引
             // 先尝试插入数据，如果插入成功再尝试删除原来的数据
             // int failed_idx = -1;

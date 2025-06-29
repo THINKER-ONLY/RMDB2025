@@ -5,7 +5,7 @@ You may obtain a copy of Mulan PSL v2 at:
         http://license.coscl.org.cn/MulanPSL2
 THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
 EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
-MERCHANTCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details. */
 
 #pragma once
@@ -19,7 +19,6 @@ See the Mulan PSL v2 for more details. */
 #include "record/rm_defs.h"
 #include "parser/ast.h"
 #include <set>
-#include "errors.h"
 
 
 struct TabCol {
@@ -105,6 +104,28 @@ struct Value {
         }
         type = new_type;
     }
+
+    // static Value col2Value(char *base, const ColMeta& meta) {
+    //     Value value;
+    //     switch (meta.type) {
+    //         case TYPE_INT:
+    //             value.set_int(*(int *) (base + meta.offset));
+    //             break;
+    //         case TYPE_FLOAT:
+    //             value.set_float(*(float *) (base + meta.offset));
+    //             break;
+    //         case TYPE_STRING: {
+    //             std::string str((char *) (base + meta.offset), meta.len);
+    //             // 去掉末尾的'\0', 考虑无tailing-zero的情况
+    //             str.resize(std::min(str.find('\0'), (size_t)meta.len));
+    //             value.set_str(str);
+    //             break;
+    //         }
+    //         default:
+    //             throw InternalError("not implemented");
+    //     }
+    //     return value;
+    // }
 
     void float2int(){
         assert(type == TYPE_FLOAT);

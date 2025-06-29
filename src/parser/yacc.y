@@ -21,36 +21,39 @@ using namespace ast;
 %define parse.error verbose
 
 // keywords
-%token SHOW TABLES CREATE TABLE DROP DESC INSERT INTO VALUES DELETE FROM ASC ORDER BY
-WHERE UPDATE SET SELECT INT CHAR FLOAT INDEX AND JOIN EXIT HELP TXN_BEGIN TXN_COMMIT TXN_ABORT TXN_ROLLBACK ORDER_BY ENABLE_NESTLOOP ENABLE_SORTMERGE
+%token SHOW TABLES CREATE TABLE DROP DESC INSERT INTO VALUES DELETE FROM ASC ORDER GROUP BY HAVING STATIC_CHECKPOINT LOAD OUTPUT_FILE OFF
+WHERE UPDATE SET SELECT MAX MIN SUM COUNT AS INT CHAR FLOAT INDEX AND JOIN EXIT HELP TXN_BEGIN TXN_COMMIT TXN_ABORT TXN_ROLLBACK ORDER_BY ENABLE_NESTLOOP ENABLE_SORTMERGE ON
 // non-keywords
-%token LEQ NEQ GEQ T_EOF
+%token IN LEQ NEQ GEQ T_EOF
 
 // type-specific tokens
-%token <sv_str> IDENTIFIER VALUE_STRING
+%token <sv_str> IDENTIFIER VALUE_STRING PATH_LIKE
 %token <sv_int> VALUE_INT
 %token <sv_float> VALUE_FLOAT
 %token <sv_bool> VALUE_BOOL
 
 // specify types for non-terminal symbol
-%type <sv_node> stmt dbStmt ddl dml txnStmt setStmt
+%type <sv_node> stmt dbStmt ddl dml txnStmt setStmt SelStmt
 %type <sv_field> field
 %type <sv_fields> fieldList
 %type <sv_type_len> type
 %type <sv_comp_op> op
 %type <sv_expr> expr
 %type <sv_val> value
-%type <sv_vals> valueList
-%type <sv_str> tbName colName
+%type <sv_vals> valueList oneValue
+%type <sv_vals_list> valuesList
+%type <sv_str> tbName colName alias fileName
 %type <sv_strs> tableList colNameList
-%type <sv_col> col
+%type <sv_col> col colEach
 %type <sv_cols> colList selector
 %type <sv_set_clause> setClause
 %type <sv_set_clauses> setClauses
 %type <sv_cond> condition
-%type <sv_conds> whereClause optWhereClause
+%type <sv_conds> whereClause optWhereClause opOnClause
 %type <sv_orderby>  order_clause opt_order_clause
+%type <sv_groupby>  opt_group_clause
 %type <sv_orderby_dir> opt_asc_desc
+%type <sv_aggr_type> opt_aggregate
 %type <sv_setKnobType> set_knob_type
 
 %%
@@ -73,6 +76,11 @@ start:
     |   T_EOF
     {
         parse_tree = nullptr;
+        YYACCEPT;
+    }
+    |   SET OUTPUT_FILE OFF
+    {
+        parse_tree = std::make_shared<SetOutputFile>();
         YYACCEPT;
     }
     ;
@@ -109,6 +117,18 @@ dbStmt:
     {
         $$ = std::make_shared<ShowTables>();
     }
+    |   SHOW INDEX FROM tbName
+    {
+        $$ = std::make_shared<ShowIndex>($4);
+    }
+    |   CREATE STATIC_CHECKPOINT
+    {
+        $$ = std::make_shared<CreateStaticCheckpoint>();
+    }
+    |   LOAD fileName INTO tbName
+    {
+        $$ = std::make_shared<LoadStmt>($2, $4);
+    }
     ;
 
 setStmt:
@@ -142,9 +162,9 @@ ddl:
     ;
 
 dml:
-        INSERT INTO tbName VALUES '(' valueList ')'
+        INSERT INTO tbName VALUES valuesList
     {
-        $$ = std::make_shared<InsertStmt>($3, $6);
+        $$ = std::make_shared<InsertStmt>($3, $5);
     }
     |   DELETE FROM tbName optWhereClause
     {
@@ -154,9 +174,34 @@ dml:
     {
         $$ = std::make_shared<UpdateStmt>($2, $4, $5);
     }
-    |   SELECT selector FROM tableList optWhereClause opt_order_clause
+    |   SelStmt
     {
-        $$ = std::make_shared<SelectStmt>($2, $4, $5, $6);
+        $$ = $1;
+    }
+    ;
+
+SelStmt:
+        SELECT selector FROM tableList opOnClause optWhereClause opt_order_clause opt_group_clause
+    {
+        $$ = std::make_shared<SelectStmt>($2, $4, $5, $6, $7, $8);
+    }
+    ;
+
+oneValue:
+    '(' valueList ')'
+    {
+        $$ = $2;
+    }
+    ;
+
+valuesList:
+        oneValue
+    {
+        $$ = std::vector<std::vector<std::shared_ptr<Value>>>{$1};
+    }
+    |   valuesList ',' oneValue
+    {
+        $$.push_back($3);
     }
     ;
 
@@ -239,6 +284,24 @@ condition:
     {
         $$ = std::make_shared<BinaryExpr>($1, $2, $3);
     }
+    |  col IN '(' SelStmt ')'
+    {
+        $$ = std::make_shared<BinaryExpr>($1, SV_OP_IN, std::static_pointer_cast<Expr>(std::make_shared<SubQueryStmt>(std::static_pointer_cast<SelectStmt>($4))));
+    }
+    | col IN '(' valueList ')'
+    {
+        $$ = std::make_shared<BinaryExpr>($1, SV_OP_IN, std::static_pointer_cast<Expr>(std::make_shared<ValueList>($4)));
+    }
+    ;
+
+
+opOnClause:
+        /* epsilon */ { /* ignore*/ }
+    |
+        ON whereClause
+    {
+        $$ = $2;
+    }
     ;
 
 optWhereClause:
@@ -260,6 +323,7 @@ whereClause:
     }
     ;
 
+
 col:
         tbName '.' colName
     {
@@ -269,16 +333,68 @@ col:
     {
         $$ = std::make_shared<Col>("", $1);
     }
+    // 这里是别名、聚合函数的处理
+    // |   tbName '.' colName AS alias
+    // {
+    //     $$ = std::make_shared<Col>($1, $3, $5);
+    // }
+    // |   colName AS alias
+    // {
+    //     $$ = std::make_shared<Col>("", $1, $3);
+    // }
+    |   opt_aggregate '(' tbName '.' colName ')'
+    {
+        $$ = std::make_shared<Col>($3, $5);
+        $$->aggr_type = $1;
+    }
+    // |   opt_aggregate '(' tbName '.' colName ')' AS alias
+    // {
+    //     $$ = std::make_shared<Col>($3, $5, $8);
+    //     $$->aggr_type = $1;
+    // }
+    |   opt_aggregate '(' colName ')'
+    {
+        $$ = std::make_shared<Col>("", $3);
+        $$->aggr_type = $1;
+    }
+    |   opt_aggregate '(' '*' ')'
+    {
+        $$ = std::make_shared<Col>("", "*");
+        $$->aggr_type = $1;
+    }
+    // |   opt_aggregate '(' colName ')' AS alias
+    // {
+    //     $$ = std::make_shared<Col>("", $3, $6);
+    //     $$->aggr_type = $1;
+    // }
+    // |   opt_aggregate '(' '*' ')' AS alias
+    // {
+    //     $$ = std::make_shared<Col>("", "*", $6);
+    //     $$->aggr_type = $1;
+    // }
     ;
 
+
 colList:
-        col
+        colEach
     {
         $$ = std::vector<std::shared_ptr<Col>>{$1};
     }
-    |   colList ',' col
+    |   colList ',' colEach
     {
         $$.push_back($3);
+    }
+    ;
+
+colEach:
+        col
+    {
+        $$ = $1;
+    }
+    |   col AS alias
+    {
+        $1->alias = $3;
+        $$ = $1;
     }
     ;
 
@@ -317,6 +433,10 @@ expr:
     |   col
     {
         $$ = std::static_pointer_cast<Expr>($1);
+    }
+    |   '(' SelStmt ')'
+    {
+        $$ = std::static_pointer_cast<Expr>(std::make_shared<SubQueryStmt>(std::static_pointer_cast<SelectStmt>($2)));
     }
     ;
 
@@ -368,6 +488,20 @@ opt_order_clause:
     }
     |   /* epsilon */ { /* ignore*/ }
     ;
+    
+opt_group_clause:
+    GROUP BY colList
+    { 
+        auto group_by = std::make_shared<GroupBy>($3);
+        $$ = group_by;
+    }
+    | GROUP BY colList HAVING whereClause
+    {
+        auto group_by = std::make_shared<GroupBy>($3, $5);
+        $$ = group_by;
+    }
+    |   /* epsilon */ { /* ignore*/ }
+    ;
 
 order_clause:
       col  opt_asc_desc 
@@ -382,6 +516,12 @@ opt_asc_desc:
     |       { $$ = OrderBy_DEFAULT; }
     ;    
 
+opt_aggregate:
+    MAX { $$ = AGGR_TYPE_MAX; }
+    | MIN { $$ = AGGR_TYPE_MIN; }
+    | SUM { $$ = AGGR_TYPE_SUM; }
+    | COUNT { $$ = AGGR_TYPE_COUNT; }
+
 set_knob_type:
     ENABLE_NESTLOOP { $$ = EnableNestLoop; }
     |   ENABLE_SORTMERGE { $$ = EnableSortMerge; }
@@ -390,4 +530,8 @@ set_knob_type:
 tbName: IDENTIFIER;
 
 colName: IDENTIFIER;
+
+fileName: PATH_LIKE;
+
+alias: IDENTIFIER;
 %%

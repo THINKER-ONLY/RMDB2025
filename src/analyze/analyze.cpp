@@ -47,6 +47,7 @@ std::shared_ptr<Query> Analyze::do_analyze(std::shared_ptr<ast::TreeNode> parse)
             TabCol sel_col = {.tab_name = sv_sel_col->tab_name, .col_name = sv_sel_col->col_name,.alias = sv_sel_col->alias,.aggr = sv_sel_col->aggr_type};
             query->cols.push_back(sel_col);
         }
+
         query->has_aggr = has_aggr;
         std::vector<ColMeta> all_cols;
         get_all_cols(query->tables, all_cols);
@@ -105,7 +106,7 @@ std::shared_ptr<Query> Analyze::do_analyze(std::shared_ptr<ast::TreeNode> parse)
         check_clause(query->tables, query->on_conds, false);
         //处理where条件
         get_clause(x->conds, query->conds);
-        check_clause(query->tables, query->conds. false);
+        check_clause(query->tables, query->conds, false);
     } else if (auto x = std::dynamic_pointer_cast<ast::UpdateStmt>(parse)) {
         /** TODO: (done)*/
         for(auto& sv_set : x->set_clauses){
@@ -135,6 +136,7 @@ std::shared_ptr<Query> Analyze::do_analyze(std::shared_ptr<ast::TreeNode> parse)
     query->parse = std::move(parse);
     return query;
 }
+
 
 
 TabCol Analyze::check_column(const std::vector<ColMeta> &all_cols, TabCol target) {
@@ -262,6 +264,7 @@ void Analyze::check_on_clause(const std::vector<std::string> &tab_names, std::ve
     }
 }
 
+// where
 void Analyze::check_clause(const std::vector<std::string> &tab_names, std::vector<Condition> &conds, bool is_having) {
     // auto all_cols = get_all_cols(tab_names);
     std::vector<ColMeta> all_cols;
@@ -296,13 +299,7 @@ void Analyze::check_clause(const std::vector<std::string> &tab_names, std::vecto
             ColType lhs_type = lhs_col->type;
             ColType rhs_type;
             if (cond.rhs_type == CondRhsType::RHS_VALUE)  {
-                if (cond.rhs_val.type == TYPE_INT) {
-                    cond.rhs_val.init_raw(sizeof(int));
-                } else if (cond.rhs_val.type == TYPE_FLOAT) {
-                    cond.rhs_val.init_raw(sizeof(float));
-                } else {
-                    cond.rhs_val.init_raw(lhs_col->len);
-                }
+                cond.rhs_val.init_raw(lhs_col->len);
                 rhs_type = cond.rhs_val.type;
             } else if(cond.rhs_type == CondRhsType::RHS_COL){
                 TabMeta &rhs_tab = sm_manager_->db_.get_table(cond.rhs_col.tab_name);

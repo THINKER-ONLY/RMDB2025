@@ -76,7 +76,6 @@ void RmScan::next() {
 bool RmScan::is_end() const {
     // Todo: 修改返回值
     return rid_.slot_no == -1;
-    //return false;
 }
 
 /**

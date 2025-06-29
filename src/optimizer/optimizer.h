@@ -32,15 +32,32 @@ class Optimizer {
         {}
     
     std::shared_ptr<Plan> plan_query(std::shared_ptr<Query> query, Context *context) {
+        // 先解析query的条件，对子查询进行解析
+        for(Condition& cond : query->conds) {
+            if(cond.rhs_type == CondRhsType::RHS_SELECT) {
+                cond.rhs_plan = plan_query(cond.rhs_query, context);
+            }
+        }
+        for(Condition& cond : query->having_conds) {
+            if(cond.rhs_type == CondRhsType::RHS_SELECT) {
+                cond.rhs_plan = plan_query(cond.rhs_query, context);
+            }
+        }
         if (auto x = std::dynamic_pointer_cast<ast::Help>(query->parse)) {
             // help;
             return std::make_shared<OtherPlan>(T_Help, std::string());
+        } else if (auto x = std::dynamic_pointer_cast<ast::SetOutputFile>(query->parse)) {
+            // set output_file off
+            return std::make_shared<OtherPlan>(T_SetOutputFile, std::string());
         } else if (auto x = std::dynamic_pointer_cast<ast::ShowTables>(query->parse)) {
             // show tables;
             return std::make_shared<OtherPlan>(T_ShowTable, std::string());
         } else if (auto x = std::dynamic_pointer_cast<ast::DescTable>(query->parse)) {
             // desc table;
             return std::make_shared<OtherPlan>(T_DescTable, x->tab_name);
+        } else if (auto x = std::dynamic_pointer_cast<ast::ShowIndex>(query->parse)) {
+            // show index;
+            return std::make_shared<OtherPlan>(T_ShowIndex, x->tab_name);
         } else if (auto x = std::dynamic_pointer_cast<ast::TxnBegin>(query->parse)) {
             // begin;
             return std::make_shared<OtherPlan>(T_Transaction_begin, std::string());
@@ -56,6 +73,12 @@ class Optimizer {
         } else if (auto x = std::dynamic_pointer_cast<ast::SetStmt>(query->parse)) {
             // Set Knob Plan
             return std::make_shared<SetKnobPlan>(x->set_knob_type_, x->bool_val_);
+        } else if (auto x = std::dynamic_pointer_cast<ast::CreateStaticCheckpoint>(query->parse)) {
+            // create static_checkpoint;
+            return std::make_shared<OtherPlan>(T_Checkpoint, std::string());
+        } else if (auto x = std::dynamic_pointer_cast<ast::LoadStmt>(query->parse)) {
+            // load
+            return std::make_shared<LoadPlan>(T_LoadFile, x->file_name, x->tab_name);
         } else {
             return planner_->do_planner(query, context);
         }

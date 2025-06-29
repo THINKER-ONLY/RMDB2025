@@ -35,8 +35,8 @@
    especially those whose name start with YY_ or yy_.  They are
    private implementation details that can be changed or removed.  */
 
-#ifndef YY_YY_MNT_D_PHD1_DATABASE_COMPETITION_DB2024_RMDB_SRC_PARSER_YACC_TAB_H_INCLUDED
-# define YY_YY_MNT_D_PHD1_DATABASE_COMPETITION_DB2024_RMDB_SRC_PARSER_YACC_TAB_H_INCLUDED
+#ifndef YY_YY_YACC_TAB_H_INCLUDED
+# define YY_YY_YACC_TAB_H_INCLUDED
 /* Debug traces.  */
 #ifndef YYDEBUG
 # define YYDEBUG 0
@@ -67,35 +67,49 @@ extern int yydebug;
     FROM = 268,                    /* FROM  */
     ASC = 269,                     /* ASC  */
     ORDER = 270,                   /* ORDER  */
-    BY = 271,                      /* BY  */
-    WHERE = 272,                   /* WHERE  */
-    UPDATE = 273,                  /* UPDATE  */
-    SET = 274,                     /* SET  */
-    SELECT = 275,                  /* SELECT  */
-    INT = 276,                     /* INT  */
-    CHAR = 277,                    /* CHAR  */
-    FLOAT = 278,                   /* FLOAT  */
-    INDEX = 279,                   /* INDEX  */
-    AND = 280,                     /* AND  */
-    JOIN = 281,                    /* JOIN  */
-    EXIT = 282,                    /* EXIT  */
-    HELP = 283,                    /* HELP  */
-    TXN_BEGIN = 284,               /* TXN_BEGIN  */
-    TXN_COMMIT = 285,              /* TXN_COMMIT  */
-    TXN_ABORT = 286,               /* TXN_ABORT  */
-    TXN_ROLLBACK = 287,            /* TXN_ROLLBACK  */
-    ORDER_BY = 288,                /* ORDER_BY  */
-    ENABLE_NESTLOOP = 289,         /* ENABLE_NESTLOOP  */
-    ENABLE_SORTMERGE = 290,        /* ENABLE_SORTMERGE  */
-    LEQ = 291,                     /* LEQ  */
-    NEQ = 292,                     /* NEQ  */
-    GEQ = 293,                     /* GEQ  */
-    T_EOF = 294,                   /* T_EOF  */
-    IDENTIFIER = 295,              /* IDENTIFIER  */
-    VALUE_STRING = 296,            /* VALUE_STRING  */
-    VALUE_INT = 297,               /* VALUE_INT  */
-    VALUE_FLOAT = 298,             /* VALUE_FLOAT  */
-    VALUE_BOOL = 299               /* VALUE_BOOL  */
+    GROUP = 271,                   /* GROUP  */
+    BY = 272,                      /* BY  */
+    HAVING = 273,                  /* HAVING  */
+    STATIC_CHECKPOINT = 274,       /* STATIC_CHECKPOINT  */
+    LOAD = 275,                    /* LOAD  */
+    OUTPUT_FILE = 276,             /* OUTPUT_FILE  */
+    OFF = 277,                     /* OFF  */
+    WHERE = 278,                   /* WHERE  */
+    UPDATE = 279,                  /* UPDATE  */
+    SET = 280,                     /* SET  */
+    SELECT = 281,                  /* SELECT  */
+    MAX = 282,                     /* MAX  */
+    MIN = 283,                     /* MIN  */
+    SUM = 284,                     /* SUM  */
+    COUNT = 285,                   /* COUNT  */
+    AS = 286,                      /* AS  */
+    INT = 287,                     /* INT  */
+    CHAR = 288,                    /* CHAR  */
+    FLOAT = 289,                   /* FLOAT  */
+    INDEX = 290,                   /* INDEX  */
+    AND = 291,                     /* AND  */
+    JOIN = 292,                    /* JOIN  */
+    EXIT = 293,                    /* EXIT  */
+    HELP = 294,                    /* HELP  */
+    TXN_BEGIN = 295,               /* TXN_BEGIN  */
+    TXN_COMMIT = 296,              /* TXN_COMMIT  */
+    TXN_ABORT = 297,               /* TXN_ABORT  */
+    TXN_ROLLBACK = 298,            /* TXN_ROLLBACK  */
+    ORDER_BY = 299,                /* ORDER_BY  */
+    ENABLE_NESTLOOP = 300,         /* ENABLE_NESTLOOP  */
+    ENABLE_SORTMERGE = 301,        /* ENABLE_SORTMERGE  */
+    ON = 302,                      /* ON  */
+    IN = 303,                      /* IN  */
+    LEQ = 304,                     /* LEQ  */
+    NEQ = 305,                     /* NEQ  */
+    GEQ = 306,                     /* GEQ  */
+    T_EOF = 307,                   /* T_EOF  */
+    IDENTIFIER = 308,              /* IDENTIFIER  */
+    VALUE_STRING = 309,            /* VALUE_STRING  */
+    PATH_LIKE = 310,               /* PATH_LIKE  */
+    VALUE_INT = 311,               /* VALUE_INT  */
+    VALUE_FLOAT = 312,             /* VALUE_FLOAT  */
+    VALUE_BOOL = 313               /* VALUE_BOOL  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -122,4 +136,4 @@ struct YYLTYPE
 int yyparse (void);
 
 
-#endif /* !YY_YY_MNT_D_PHD1_DATABASE_COMPETITION_DB2024_RMDB_SRC_PARSER_YACC_TAB_H_INCLUDED  */
+#endif /* !YY_YY_YACC_TAB_H_INCLUDED  */

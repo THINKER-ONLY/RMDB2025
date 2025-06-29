@@ -72,9 +72,15 @@ class SmManager {
 
     void drop_table(const std::string& tab_name, Context* context);
 
+    void load_table(const std::string& file_name, const std::string& tab_name);
+
     void create_index(const std::string& tab_name, const std::vector<std::string>& col_names, Context* context);
 
     void drop_index(const std::string& tab_name, const std::vector<std::string>& col_names, Context* context);
     
     void drop_index(const std::string& tab_name, const std::vector<ColMeta>& col_names, Context* context);
+
+    void show_index(const std::string& tab_name, Context* context);
+
+    void flush_all_pages(){ buffer_pool_manager_->flush_all_pages(); }
 };

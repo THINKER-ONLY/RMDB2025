@@ -207,10 +207,7 @@ void QlManager::select_from(std::unique_ptr<AbstractExecutor> executorTreeRoot, 
                 col_str = std::to_string(*(float *)rec_buf);
             } else if (col.type == TYPE_STRING) {
                 col_str = std::string((char *)rec_buf, col.len);
-                size_t first_null = col_str.find('\0');
-                if (first_null != std::string::npos) {
-                    col_str.resize(first_null);
-                }
+                col_str.resize(strlen(col_str.c_str()));
             }  else if (col.type == TYPE_NULL) {
                 col_str = "NULL";
             }

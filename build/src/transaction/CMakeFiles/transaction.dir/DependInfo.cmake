@@ -10,7 +10,6 @@ set(CMAKE_DEPENDS_LANGUAGES
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "/home/thinker/Projects/rmdb2025/rmdb/src/transaction/concurrency/lock_manager.cpp" "src/transaction/CMakeFiles/transaction.dir/concurrency/lock_manager.cpp.o" "gcc" "src/transaction/CMakeFiles/transaction.dir/concurrency/lock_manager.cpp.o.d"
   "/home/thinker/Projects/rmdb2025/rmdb/src/transaction/transaction_manager.cpp" "src/transaction/CMakeFiles/transaction.dir/transaction_manager.cpp.o" "gcc" "src/transaction/CMakeFiles/transaction.dir/transaction_manager.cpp.o.d"
-  "/home/thinker/Projects/rmdb2025/rmdb/src/transaction/watermark.cpp" "src/transaction/CMakeFiles/transaction.dir/watermark.cpp.o" "gcc" "src/transaction/CMakeFiles/transaction.dir/watermark.cpp.o.d"
   )
 
 # Targets to which this target links.

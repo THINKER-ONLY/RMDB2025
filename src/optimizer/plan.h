@@ -18,16 +18,21 @@ See the Mulan PSL v2 for more details. */
 #include "parser/ast.h"
 
 #include "parser/parser.h"
+#include "system/sm.h"
 
 typedef enum PlanTag{
     T_Invalid = 1,
     T_Help,
+    T_SetOutputFile,
     T_ShowTable,
     T_DescTable,
     T_CreateTable,
     T_DropTable,
     T_CreateIndex,
     T_DropIndex,
+    T_ShowIndex,
+    T_Checkpoint,
+    T_LoadFile,
     T_SetKnob,
     T_Insert,
     T_Update,
@@ -42,6 +47,7 @@ typedef enum PlanTag{
     T_NestLoop,
     T_SortMerge,    // sort merge join
     T_Sort,
+    T_Aggregation,
     T_Projection
 } PlanTag;
 
@@ -133,12 +139,31 @@ class SortPlan : public Plan
         
 };
 
+class AggregationPlan : public Plan
+{
+    public:
+        AggregationPlan(PlanTag tag, std::shared_ptr<Plan> subplan, std::vector<TabCol> sel_cols, std::vector<TabCol> group_cols, std::vector<Condition> having_conds)
+        {
+            Plan::tag = tag;
+            subplan_ = std::move(subplan);
+            sel_cols_ = std::move(sel_cols);
+            group_cols_ = std::move(group_cols);
+            having_conds_ = std::move(having_conds);
+        }
+        ~AggregationPlan(){}
+        std::shared_ptr<Plan> subplan_;
+        std::vector<TabCol> sel_cols_;
+        std::vector<TabCol> group_cols_;
+        std::vector<Condition> having_conds_;
+};
+
+
 // dml语句，包括insert; delete; update; select语句　
 class DMLPlan : public Plan
 {
     public:
         DMLPlan(PlanTag tag, std::shared_ptr<Plan> subplan,std::string tab_name,
-                std::vector<Value> values, std::vector<Condition> conds,
+                std::vector<std::vector<Value>> values, std::vector<Condition> conds,
                 std::vector<SetClause> set_clauses)
         {
             Plan::tag = tag;
@@ -151,7 +176,7 @@ class DMLPlan : public Plan
         ~DMLPlan(){}
         std::shared_ptr<Plan> subplan_;
         std::string tab_name_;
-        std::vector<Value> values_;
+        std::vector<std::vector<Value>> values_;
         std::vector<Condition> conds_;
         std::vector<SetClause> set_clauses_;
 };
@@ -183,6 +208,20 @@ class OtherPlan : public Plan
             tab_name_ = std::move(tab_name);            
         }
         ~OtherPlan(){}
+        std::string tab_name_;
+};
+
+class LoadPlan : public Plan
+{
+    public:
+        LoadPlan(PlanTag tag, std::string file_name, std::string tab_name)
+        {
+            Plan::tag = tag;
+            file_name_ = std::move(file_name);
+            tab_name_ = std::move(tab_name);
+        }
+        ~LoadPlan(){}
+        std::string file_name_;
         std::string tab_name_;
 };
 

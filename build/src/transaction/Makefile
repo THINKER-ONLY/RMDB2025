@@ -233,30 +233,6 @@ transaction_manager.cpp.s:
 	cd /home/thinker/Projects/rmdb2025/rmdb/build && $(MAKE) $(MAKESILENT) -f src/transaction/CMakeFiles/transaction.dir/build.make src/transaction/CMakeFiles/transaction.dir/transaction_manager.cpp.s
 .PHONY : transaction_manager.cpp.s
 
-watermark.o: watermark.cpp.o
-.PHONY : watermark.o
-
-# target to build an object file
-watermark.cpp.o:
-	cd /home/thinker/Projects/rmdb2025/rmdb/build && $(MAKE) $(MAKESILENT) -f src/transaction/CMakeFiles/transaction.dir/build.make src/transaction/CMakeFiles/transaction.dir/watermark.cpp.o
-.PHONY : watermark.cpp.o
-
-watermark.i: watermark.cpp.i
-.PHONY : watermark.i
-
-# target to preprocess a source file
-watermark.cpp.i:
-	cd /home/thinker/Projects/rmdb2025/rmdb/build && $(MAKE) $(MAKESILENT) -f src/transaction/CMakeFiles/transaction.dir/build.make src/transaction/CMakeFiles/transaction.dir/watermark.cpp.i
-.PHONY : watermark.cpp.i
-
-watermark.s: watermark.cpp.s
-.PHONY : watermark.s
-
-# target to generate assembly for a file
-watermark.cpp.s:
-	cd /home/thinker/Projects/rmdb2025/rmdb/build && $(MAKE) $(MAKESILENT) -f src/transaction/CMakeFiles/transaction.dir/build.make src/transaction/CMakeFiles/transaction.dir/watermark.cpp.s
-.PHONY : watermark.cpp.s
-
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -277,9 +253,6 @@ help:
 	@echo "... transaction_manager.o"
 	@echo "... transaction_manager.i"
 	@echo "... transaction_manager.s"
-	@echo "... watermark.o"
-	@echo "... watermark.i"
-	@echo "... watermark.s"
 .PHONY : help
 
 

@@ -357,7 +357,33 @@ class AggregationExecutor : public AbstractExecutor {
                     val.set_float(sum);
                     val.init_raw(sizeof(float));
                 } else if (sel_col.type == TYPE_STRING) {
-                    throw IncompatibleTypeError("SUM", "STRING");
+                    val.type = TYPE_INT;
+                    std::string sum;
+                    float sum_float = 0;
+                    bool is_float = false;
+
+                    for (auto &record : curr_records) {
+                        const char* base = record->data + sel_col.offset;
+                        sum = "";
+                        for (size_t i=0; i<sel_col.len; ++i) {
+                            if (base[i] >= '0' && base[i] <= '9') sum += base[i];
+                            else if (base[i] == '.'){
+                                sum += base[i];
+                                is_float = true;
+                            }
+                            else break;
+                        }
+                        if (sum.size() == 0) continue;
+                        sum_float += std::stof(sum);
+                    }
+                    if (is_float) {
+                        val.set_float(sum_float);
+                        val.type = TYPE_FLOAT;
+                        val.init_raw(sizeof(float));
+                    } else {
+                        val.set_int((int)sum_float);
+                        val.init_raw(sizeof(int));
+                    }
                 } else {
                     throw InternalError("Unknown AggrType");
                 }

@@ -18,17 +18,6 @@ constexpr int RM_FILE_HDR_PAGE = 0;
 constexpr int RM_FIRST_RECORD_PAGE = 1;
 constexpr int RM_MAX_RECORD_SIZE = 512;
 
-struct TupleMeta {
-    timestamp_t ts_;
-    bool is_deleted_;
-
-    friend auto operator==(const TupleMeta &a, const TupleMeta &b) {
-        return a.ts_ == b.ts_ && a.is_deleted_ == b.is_deleted_;
-    }
-
-    friend auto operator!=(const TupleMeta &a, const TupleMeta &b) { return !(a == b); }
-};
-
 /* 文件头，记录表数据文件的元信息，写入磁盘中文件的第0号页面 */
 struct RmFileHdr {
     int record_size;            // 表中每条记录的大小，由于不包含变长字段，因此当前字段初始化后保持不变
@@ -59,8 +48,17 @@ struct RmRecord {
         allocated_ = true;
     };
 
-    RmRecord(int size) : size(size) {
+    RmRecord &operator=(const RmRecord& other) {
+        size = other.size;
         data = new char[size];
+        memcpy(data, other.data, size);
+        allocated_ = true;
+        return *this;
+    };
+
+    RmRecord(int size_) {
+        size = size_;
+        data = new char[size_];
         allocated_ = true;
     }
 
@@ -71,57 +69,8 @@ struct RmRecord {
         allocated_ = true;
     }
 
-    ~RmRecord() {
-        if (allocated_) {
-            delete[] data;
-        }
-    }
-
-    RmRecord &operator=(const RmRecord &other) {
-        if (this == &other) {
-            return *this;
-        }
-        if (allocated_) {
-            delete[] data;
-        }
-        size = other.size;
-        data = new char[size];
-        memcpy(data, other.data, size);
-        allocated_ = true;
-        return *this;
-    }
-
-    RmRecord(RmRecord &&other) noexcept {
-        data = other.data;
-        size = other.size;
-        allocated_ = other.allocated_;
-
-        other.data = nullptr;
-        other.size = 0;
-        other.allocated_ = false;
-    }
-
-    RmRecord &operator=(RmRecord &&other) noexcept {
-        if (this == &other) {
-            return *this;
-        }
-        if (allocated_) {
-            delete[] data;
-        }
-        
-        data = other.data;
-        size = other.size;
-        allocated_ = other.allocated_;
-
-        other.data = nullptr;
-        other.size = 0;
-        other.allocated_ = false;
-        
-        return *this;
-    }
-
     void SetData(char* data_) {
-        data = data_;
+        memcpy(data, data_, size);
     }
 
     void Deserialize(const char* data_) {
@@ -131,5 +80,13 @@ struct RmRecord {
         }
         data = new char[size];
         memcpy(data, data_ + sizeof(int), size);
+    }
+
+    ~RmRecord() {
+        if(allocated_) {
+            delete[] data;
+        }
+        allocated_ = false;
+        data = nullptr;
     }
 };

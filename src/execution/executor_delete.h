@@ -55,8 +55,8 @@ class DeleteExecutor : public AbstractExecutor {
             lsn_t curr_lsn = context_->log_mgr_->add_log_to_buffer(&log_record);
             context_->txn_->set_prev_lsn(curr_lsn);
             fh_->delete_record(rid, context_);
-            auto wr = std::make_unique<WriteRecord>(WType::DELETE_TUPLE, tab_name_, rid, *rec.get());
-            context_->txn_->append_write_record(std::move(wr));
+            WriteRecord* wr = new WriteRecord(WType::DELETE_TUPLE, tab_name_, rid, *rec.get());
+            context_->txn_->append_write_record(wr);
             for(size_t i = 0; i < tab_.indexes.size(); ++i) {
                 auto& index = tab_.indexes[i];
                 auto ih = sm_manager_->ihs_.at(sm_manager_->get_ix_manager()->get_index_name(tab_name_, index.cols)).get();
